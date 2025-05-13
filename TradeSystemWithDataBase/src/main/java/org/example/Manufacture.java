@@ -35,7 +35,7 @@ public class Manufacture {
             return;
         }
 
-        System.out.print("Введите имя производителя: ");
+        System.out.print("Введите страну производителя: ");
         String country = scanner.nextLine();
 
         try {
@@ -46,6 +46,20 @@ public class Manufacture {
         }
 
         addManufactureIntoTable(name, country);
+    }
+
+    public static void removeManufacture() {
+        System.out.print("Введите название производителя: ");
+        String name = scanner.nextLine();
+
+        int id = DataBase.getId(tableName, "name", name);
+
+        if (id == 0) {
+            System.out.println("Производства с таким названием не существует!");
+            return;
+        }
+
+        DataBase.removeRaw(tableName, id);
     }
 
     // добавление нового производителя в таблицу "manufactures"
