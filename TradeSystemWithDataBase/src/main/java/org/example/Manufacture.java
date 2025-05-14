@@ -13,6 +13,12 @@ public class Manufacture {
 
     private static String tableName = "manufactures";
 
+    public Manufacture(int id, String name, String country) {
+        this.id = id;
+        this.name = name;
+        this.country = country;
+    }
+
     public static String getTableName() {
         return tableName;
     }
@@ -60,6 +66,10 @@ public class Manufacture {
         }
 
         DataBase.removeRaw(tableName, id);
+    }
+
+    public static void printAllManufactures() {
+        DataBase.printAll(getTableName(), 3);
     }
 
     // добавление нового производителя в таблицу "manufactures"
