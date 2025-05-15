@@ -49,7 +49,10 @@ public class WarehouseMenu {
             case 4:
                 OutputController.clearConsole();
 
+                Warehouse.closeWarehouse();
+
                 OutputController.waitForEnter();
+                showWarehouseMenu();
                 break;
             case 5:
                 OutputController.clearConsole();

@@ -12,11 +12,14 @@ public class WorkerMenu {
     static Scanner scanner = new Scanner(System.in);
     static Printer printer = new Printer();
 
-    public static void showWorkerMenu() throws FileNotFoundException {
+    public static void showWorkerMenu()  {
         OutputController.clearConsole();
 
-        printer.printTextFile(new File("/Users/mac/code/Java/ИиП/second-project-aisinast/" +
-                "TradeSystemWithDataBase/src/main/java/org/example/menu/texts/worker_menu.txt"));
+        try {
+            printer.printTextFile(new File("src/main/java/org/example/menu/texts/worker_menu.txt"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         System.out.print("\nВаш выбор: ");
         int choice = scanner.nextInt();
