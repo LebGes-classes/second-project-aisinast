@@ -40,6 +40,12 @@ public class WorkerMenu {
                 showWorkerMenu();
                 break;
             case 3:
+                OutputController.clearConsole();
+
+                Worker.printAllWorkers();
+
+                OutputController.waitForEnter();
+                showWorkerMenu();
             case 0:
                 OutputController.clearConsole();
                 AppMenu.showAppMenu();

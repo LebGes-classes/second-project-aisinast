@@ -3,6 +3,7 @@ package org.example;
 import org.example.database.DataBase;
 import org.example.services.Check;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.List;
 import java.util.Scanner;
@@ -121,6 +122,11 @@ public class Worker {
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
         }
+    }
+
+    public static void printAllWorkers() {
+        System.out.println("id\tname\tsurname\tphone_number\twork_place_id\tstatus");
+        DataBase.printAll("workers", 6);
     }
 
     private static void addWorkerIntoTable(String name, String surname, String phoneNumber,
