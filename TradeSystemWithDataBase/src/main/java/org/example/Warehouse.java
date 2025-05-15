@@ -41,6 +41,30 @@ public class Warehouse {
         addStorageIntoTable(name, city, address);
     }
 
+    public static void closeWarehouse() {
+        String warehouse = printWarehousesAndChoose();
+
+        if (DataBase.sqliteCountRows("warehouses", "name", warehouse) == 0) {
+            System.out.println("Такого склада не существует");
+            return;
+        }
+
+        int warehouseId = DataBase.getId("warehouses", "name", warehouse);
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = String.format("UPDATE workers SET status = 'уволен' " +
+                    "WHERE work_place_id = %s AND status = 'работает на складе'", warehouseId);
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(sqlQuery);
+
+            DataBase.removeRaw("warehouses", warehouseId);
+
+            System.out.println("Склад " + warehouse + " закрыт");
+        } catch (SQLException e) {
+            System.err.println("Ошибка: " + e.getMessage());
+        }
+    }
+
     public static void printWarehouseInfo() {
         String warehouse = printWarehousesAndChoose();
 
@@ -52,7 +76,7 @@ public class Warehouse {
         int warehouseId = DataBase.getId("warehouses", "name", warehouse);
 
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
-            String sqlQuery = "SELECT * FROM workers WHERE work_place_id = ?";
+            String sqlQuery = "SELECT * FROM workers WHERE work_place_id = ? AND status = 'работает на складе'";
 
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, warehouseId);
