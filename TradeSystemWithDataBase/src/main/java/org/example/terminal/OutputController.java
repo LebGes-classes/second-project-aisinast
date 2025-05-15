@@ -14,7 +14,7 @@ public class OutputController {
         }
     }
 
-    private static void waitForEnter() {
+    public static void waitForEnter() {
         System.out.println("Нажмите \"Enter\", чтобы продолжить");
         scanner.nextLine();
         clearConsole();

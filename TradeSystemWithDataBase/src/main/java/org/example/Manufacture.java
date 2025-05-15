@@ -1,7 +1,7 @@
 package org.example;
 
 import org.example.database.DataBase;
-import org.example.services.CheckNotEmpty;
+import org.example.services.Check;
 
 import java.sql.*;
 import java.util.Scanner;
@@ -30,7 +30,7 @@ public class Manufacture {
         String name = scanner.nextLine();
 
         try {
-            CheckNotEmpty.checkStringNotEmpty(name);
+            Check.stringNotEmpty(name);
         } catch (IllegalArgumentException e) {
             System.err.println("Ошибка: " + e.getMessage());
             return;
@@ -45,7 +45,7 @@ public class Manufacture {
         String country = scanner.nextLine();
 
         try {
-            CheckNotEmpty.checkStringNotEmpty(country);
+            Check.stringNotEmpty(country);
         } catch (IllegalArgumentException e) {
             System.err.println("Ошибка: " + e.getMessage());
             return;
