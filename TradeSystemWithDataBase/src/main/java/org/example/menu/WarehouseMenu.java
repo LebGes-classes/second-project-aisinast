@@ -28,6 +28,7 @@ public class WarehouseMenu {
             case 1:
                 OutputController.clearConsole();
 
+                Warehouse.printWarehouseInfo();
                 OutputController.waitForEnter();
                 break;
             case 2:

@@ -22,7 +22,8 @@ public class CreateTables {
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             name TEXT NOT NULL,
                             city TEXT NOT NULL,
-                            address TEXT NOT NULL
+                            address TEXT NOT NULL,
+                            manager_id INTEGER
                         );
                         """;
         DataBase.makeSQLQuery(createWarehousesTable);
