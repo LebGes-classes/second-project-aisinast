@@ -42,21 +42,47 @@ public class Warehouse {
     }
 
     public static void printWarehouseInfo() {
-        List<String> warehouses = DataBase.columnToList(tableName, "name");
+        String warehouse = printWarehousesAndChoose();
 
-        String[] warehousesArray = warehouses.toArray(new String[0]);
+        getWarehouseInfo(warehouse);
+    }
 
-        System.out.println("Выберите номер склада из списка: ");
+    public static void changeManager() {
+        String warehouse = printWarehousesAndChoose();
+        int warehouseId = DataBase.getId("warehouses", "name", warehouse);
 
-        for (int i = 0; i < warehousesArray.length; i++) {
-            System.out.println(i + 1 + ". " + warehousesArray[i]);
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = "SELECT * FROM workers WHERE work_place_id = ?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, warehouseId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                for (int i = 1; i <= 6; i++) {
+                    System.out.print(resultSet.getString(i) + "\t");
+                }
+                System.out.println();
+            }
+
+            System.out.print("Введите номер работника, которого вы хотите назначить ответственным лицом: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            String newSqlQuery = "UPDATE warehouses SET manager_id = ? WHERE name = ?";
+            PreparedStatement preparedStatement1 = connection.prepareStatement(newSqlQuery);
+            preparedStatement1.setInt(1, choice);
+            preparedStatement1.setString(2, warehouse);
+
+            preparedStatement1.executeUpdate();
+
+            System.out.println("Смена ответственного лица склада " + warehouse + " произошла успешно");
+        } catch (SQLException e) {
+            System.err.println("Ошибка: " + e.getMessage());
         }
 
-        System.out.print("Ваш выбор: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
-
-        getWarehouseInfo(warehousesArray[choice - 1]);
+        String sqlQuery = "UPDATE warehouses SET manager_id = ? WHERE name = ?";
     }
 
     private static void getWarehouseInfo(String name) {
@@ -72,11 +98,11 @@ public class Warehouse {
 
             if (resultSet.next()) {
                 String address = resultSet.getString("address");
+                int managerId = resultSet.getInt("manager_id");
 
                 if (resultSet.wasNull()) {
                     System.out.println("Склад: " + name + ", " + address + ". Ответственное лицо не назначено");
                 } else {
-                    int managerId = resultSet.getInt("manager_id");
                     System.out.println("Склад: " + name + ", " + address +
                             ". Ответственное лицо: " + getManagerName(managerId));
                 }
@@ -86,6 +112,26 @@ public class Warehouse {
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
         }
+    }
+
+    private static String printWarehousesAndChoose() {
+        List<String> warehouses = DataBase.columnToList(tableName, "name");
+
+        String[] warehousesArray = warehouses.toArray(new String[0]);
+
+        System.out.println("Выберите номер склада из списка: ");
+
+        for (int i = 0; i < warehousesArray.length; i++) {
+            System.out.println(i + 1 + ". " + warehousesArray[i]);
+        }
+
+        System.out.print("Ваш выбор: ");
+        int warehouseNumber = scanner.nextInt() - 1;
+        scanner.nextLine();
+
+        String warehouseName = warehousesArray[warehouseNumber];
+
+        return warehouseName;
     }
 
     private static String createWarehouseName(String city) {
