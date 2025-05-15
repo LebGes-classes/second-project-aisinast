@@ -13,9 +13,10 @@ public class WarehouseMenu {
     static Printer printer = new Printer();
 
     public static void showWarehouseMenu() {
+        OutputController.clearConsole();
+
         try {
-            printer.printTextFile(new File("/Users/mac/code/Java/ИиП/second-project-aisinast/" +
-                    "TradeSystemWithDataBase/src/main/java/org/example/menu/texts/warehouse_menu.txt"));
+            printer.printTextFile(new File("src/main/java/org/example/menu/texts/warehouse_menu.txt"));
         } catch (FileNotFoundException e) {
              throw new RuntimeException(e);
         }
@@ -30,6 +31,7 @@ public class WarehouseMenu {
 
                 Warehouse.printWarehouseInfo();
                 OutputController.waitForEnter();
+                showWarehouseMenu();
                 break;
             case 2:
                 OutputController.clearConsole();
@@ -41,8 +43,8 @@ public class WarehouseMenu {
 
                 Warehouse.addNewWarehouse();
 
-                showWarehouseMenu();
                 OutputController.waitForEnter();
+                showWarehouseMenu();
                 break;
             case 4:
                 OutputController.clearConsole();
@@ -62,13 +64,20 @@ public class WarehouseMenu {
             case 7:
                 OutputController.clearConsole();
 
+                Warehouse.changeManager();
                 OutputController.waitForEnter();
+                showWarehouseMenu();
                 break;
             case 0:
                 OutputController.clearConsole();
                 AppMenu.showAppMenu();
                 break;
             default:
+                OutputController.clearConsole();
+                System.out.println("Некорректный ввод! Повторите попытку");
+                showWarehouseMenu();
+                OutputController.waitForEnter();
+                break;
         }
     }
 }
