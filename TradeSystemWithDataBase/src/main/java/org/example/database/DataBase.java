@@ -3,8 +3,9 @@ package org.example.database;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class DataBase {
+public class DataBase<T> {
     private static final String DATABASE_URL = "jdbc:sqlite:trade-system.db";
 
     public static String getDatabaseUrl() {
@@ -102,7 +103,7 @@ public class DataBase {
                 System.out.println();
             }
         } catch (SQLException e) {
-            System.err.println("Ошибка при выводе производителей: " + e.getMessage());
+            System.err.println("Ошибка: " + e.getMessage());
         }
     }
 
@@ -130,4 +131,39 @@ public class DataBase {
 
         return columnData;
     }
+
+    // метод для извлечения значения ячейки по двум условиям
+    public static Object getCellValueByTwoConditions(String tableName, String targetColumn, String column1,
+                                                    Object value1, String column2, Object value2) {
+        String sqlQuery = String.format("SELECT %s FROM %s WHERE %s = ? AND %s = ?",
+                targetColumn, tableName, column1, column2);
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+
+            preparedStatement.setObject(1, value1);
+            preparedStatement.setObject(2, value2);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                ResultSetMetaData meta = rs.getMetaData();
+                int columnType = meta.getColumnType(1);
+
+                switch (columnType) {
+                    case Types.INTEGER:
+                        return rs.getInt(targetColumn);
+                    case Types.VARCHAR:
+                        return rs.getString(targetColumn);
+                    case Types.DOUBLE:
+                        return rs.getDouble(targetColumn);
+                    default:
+                        return rs.getObject(targetColumn);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка: " + e.getMessage());
+        }
+        return null;
+    }
+
 }
