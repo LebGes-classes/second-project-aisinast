@@ -1,6 +1,8 @@
 package org.example.database;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataBase {
     private static final String DATABASE_URL = "jdbc:sqlite:trade-system.db";
@@ -102,5 +104,30 @@ public class DataBase {
         } catch (SQLException e) {
             System.err.println("Ошибка при выводе производителей: " + e.getMessage());
         }
+    }
+
+    // метод для преобразования ячеек колонки в массив
+    public static List<String> columnToList(String tableName, String columnName) {
+        List<String> columnData = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = String.format("SELECT %s FROM %s", columnName, tableName);
+
+            Statement statement = conn.createStatement();
+            ResultSet resultSet = statement.executeQuery(sqlQuery);
+
+            while (resultSet.next()) {
+                String data = resultSet.getString(columnName);
+                columnData.add(data);
+            }
+
+            conn.close();
+            resultSet.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Ошибка: " + e.getMessage());
+        }
+
+        return columnData;
     }
 }
