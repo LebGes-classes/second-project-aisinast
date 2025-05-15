@@ -11,11 +11,11 @@ public class Check {
     }
 
     public static void phoneNumberIsCorrect(String number) {
-        if (number.length() == 12 ) {
+        if (number.length() != 12 ) {
             throw new IllegalArgumentException("Длина номера телефона должна быть 12 символов");
         }
 
-        if (number.charAt(0) == '+' && number.charAt(1) == '7') {
+        if (number.charAt(0) != '+' && number.charAt(1) != '7') {
             throw new IllegalArgumentException("Номер телефона должен начинаться с \"+7\"");
         }
     }
