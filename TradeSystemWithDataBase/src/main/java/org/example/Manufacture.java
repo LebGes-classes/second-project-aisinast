@@ -94,6 +94,8 @@ public class Manufacture {
                 }
             }
 
+            pstmt.close();
+
             System.out.println("Производитель " + name + " успешно добавлен! ID: " + id);
 
         } catch (SQLException e) {

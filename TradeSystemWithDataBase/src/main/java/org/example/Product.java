@@ -111,6 +111,9 @@ public class Product {
                          ", цена продажи: " + resultSet.getInt("sell_price"));
                  System.out.println();
              }
+
+             resultSet.close();
+             preparedStatement.close();
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
         }
@@ -156,6 +159,9 @@ public class Product {
             while (resultSet.next()) {
                 occupancy = resultSet.getInt("occupancy");
             }
+
+            resultSet.close();
+            preparedStatement.close();
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
         }
@@ -175,6 +181,8 @@ public class Product {
             preparedStatement.setInt(2, storageCellId);
 
             preparedStatement.executeUpdate();
+
+            preparedStatement.close();
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
         }
@@ -208,6 +216,11 @@ public class Product {
             }
 
             delta = capacitySum - occupancySum;
+
+            resultSet1.close();
+            resultSet2.close();
+            preparedStatement1.close();
+            preparedStatement2.close();
         } catch (SQLException e) {
             System.err.println("Ошибка2: " + e.getMessage());
         }
@@ -233,6 +246,8 @@ public class Product {
                 freeSpace = capacity - occupancy;
             }
 
+            resultSet.close();
+            preparedStatement.close();
         } catch (SQLException e) {
             System.err.println("Ошибка3: " + e.getMessage());
         }
@@ -255,7 +270,6 @@ public class Product {
                 cells.add(data);
             }
 
-            connection.close();
             resultSet.close();
             preparedStatement.close();
         }catch (SQLException e) {
@@ -281,6 +295,8 @@ public class Product {
             preparedStatement.setInt(6, manufactureId);
 
             preparedStatement.executeUpdate();
+
+            preparedStatement.close();
         } catch (SQLException e) {
             System.err.println("Ошибка при добавлении товара: " + e.getMessage());
         }

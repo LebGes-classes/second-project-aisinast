@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class DataBase<T> {
+public class DataBase {
     private static final String DATABASE_URL = "jdbc:sqlite:trade-system.db";
 
     public static String getDatabaseUrl() {
@@ -18,6 +18,7 @@ public class DataBase<T> {
             if (conn != null) {
                 Statement stmt = conn.createStatement();
                 stmt.executeUpdate(sqlQuery);
+                stmt.close();
             }
         } catch (SQLException e) {
             System.out.println("Ошибка подключения: " + e.getMessage());
@@ -41,6 +42,9 @@ public class DataBase<T> {
             if (rs.next()) {
                 count = rs.getInt(1);
             }
+
+            rs.close();
+            pstmt.close();
         } catch (SQLException e) {
             System.err.println("Ошибка при работе с базой данных: " + e.getMessage());
         }
@@ -57,6 +61,7 @@ public class DataBase<T> {
              pstmt.setInt(1, id);
              pstmt.executeUpdate();
 
+             pstmt.close();
         } catch (SQLException e)  {
             System.out.println("Ошибка подключения: " + e.getMessage());
         }
@@ -67,9 +72,6 @@ public class DataBase<T> {
         int id = 0;
 
         try (Connection conn = DriverManager.getConnection(DATABASE_URL)){
-
-            Statement stmt = conn.createStatement();
-
             String sqlQuery = String.format("SELECT id FROM %s WHERE %s = ?", tableName, fieldName);
 
             PreparedStatement pstmt = conn.prepareStatement(sqlQuery);
@@ -81,6 +83,7 @@ public class DataBase<T> {
                 }
             }
 
+            pstmt.close();
         } catch (SQLException e) {
             System.err.println("Ошибка при работе с базой данных: " + e.getMessage());
         }
@@ -102,6 +105,9 @@ public class DataBase<T> {
                 }
                 System.out.println();
             }
+
+            rs.close();
+            statement.close();
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
         }
@@ -160,6 +166,9 @@ public class DataBase<T> {
                         return rs.getObject(targetColumn);
                 }
             }
+
+            rs.close();
+            preparedStatement.close();
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
         }

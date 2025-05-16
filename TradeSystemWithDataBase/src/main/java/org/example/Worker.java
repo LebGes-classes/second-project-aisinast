@@ -118,6 +118,8 @@ public class Worker {
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
 
+            preparedStatement.close();
+
             System.out.println("Работник " + name + " " + surname + " уволен");
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
@@ -153,6 +155,8 @@ public class Worker {
                     id = rs.getInt(1);
                 }
             }
+
+            pstm.close();
 
             System.out.println("Работник " + name + " " + surname + " успешно добавлен! ID: " + id);
 

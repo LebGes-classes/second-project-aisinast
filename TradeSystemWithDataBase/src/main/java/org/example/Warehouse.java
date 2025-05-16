@@ -59,6 +59,8 @@ public class Warehouse {
 
             DataBase.removeRaw("warehouses", warehouseId);
 
+            statement.close();
+
             System.out.println("Склад " + warehouse + " закрыт");
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
@@ -101,6 +103,10 @@ public class Warehouse {
 
             preparedStatement1.executeUpdate();
 
+            resultSet.close();
+            preparedStatement.close();
+            preparedStatement1.close();
+
             System.out.println("Смена ответственного лица склада " + warehouse + " произошла успешно");
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
@@ -133,12 +139,15 @@ public class Warehouse {
             } else {
                 System.out.println("Запись не найдена");
             }
+
+            resultSet.close();
+            preparedStatement.close();
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
         }
     }
 
-    private static String printWarehousesAndChoose() {
+    public static String printWarehousesAndChoose() {
         List<String> warehouses = DataBase.columnToList(tableName, "name");
 
         String[] warehousesArray = warehouses.toArray(new String[0]);
@@ -177,6 +186,9 @@ public class Warehouse {
                 name = resultSet.getString("name");
                 surname = resultSet.getString("surname");
             }
+
+            resultSet.close();
+            preparedStatement.close();
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
         }
@@ -199,11 +211,12 @@ public class Warehouse {
             int id = 0;
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery("SELECT last_insert_rowid()")) {
-                if (rs.next()) {
+                 if (rs.next()) {
                     id = rs.getInt(1);
-                }
+                 }
             }
 
+            pstmt.close();
             System.out.println("Склад " + name + " успешно добавлен! ID: " + id);
         } catch (SQLException e) {
             System.err.println("Ошибка при добавлении склада: " + e.getMessage());

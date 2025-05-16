@@ -26,20 +26,22 @@ public class StorageCell {
             System.out.println("Ячейка не может иметь отрицательную или нулевую вместимость");
         }
 
-        addIntoTable(capacity, 0, warehouseId);
+        addIntoTable(capacity, warehouseId);
     }
 
-    private static void addIntoTable(int capacity, int occupancy, int warehouseId) {
+    private static void addIntoTable(int capacity, int warehouseId) {
         String sqlQuery = "INSERT INTO storage_cells (capacity, occupancy, warehouse_id) VALUES (?, ?, ?)";
 
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
 
             preparedStatement.setInt(1, capacity);
-            preparedStatement.setInt(2, occupancy);
+            preparedStatement.setInt(2, 0);
             preparedStatement.setInt(3, warehouseId);
 
             preparedStatement.executeUpdate();
+
+            preparedStatement.close();
 
             System.out.println("Ячейка успешно добавлена!");
         } catch (SQLException e) {
