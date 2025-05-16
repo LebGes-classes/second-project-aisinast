@@ -1,5 +1,6 @@
 package org.example.menu;
 
+import org.example.Product;
 import org.example.Warehouse;
 import org.example.terminal.OutputController;
 import org.example.terminal.Printer;
@@ -36,7 +37,10 @@ public class WarehouseMenu {
             case 2:
                 OutputController.clearConsole();
 
+                Product.printProductsInfo(Warehouse.printWarehousesAndChoose());
+
                 OutputController.waitForEnter();
+                showWarehouseMenu();
                 break;
             case 3:
                 OutputController.clearConsole();
@@ -57,7 +61,10 @@ public class WarehouseMenu {
             case 5:
                 OutputController.clearConsole();
 
+                Product.addNewProduct(Warehouse.printWarehousesAndChoose());
+
                 OutputController.waitForEnter();
+                showWarehouseMenu();
                 break;
             case 6:
                 OutputController.clearConsole();

@@ -2,6 +2,7 @@ package org.example;
 
 import org.example.database.DataBase;
 import org.example.services.Check;
+import org.example.terminal.OutputController;
 
 import java.sql.*;
 import java.util.*;
@@ -71,6 +72,13 @@ public class Product {
 
         List<Integer> cells = getCellsList(warehouseId);
 
+        Iterator<Integer> cellIterator = cells.iterator();
+        while (cellIterator.hasNext()) {
+            if (getCellFreeSpace(cellIterator.next()) == 0) {
+                cellIterator.remove();
+            }
+        }
+
         if (getCellFreeSpace(cells.getFirst()) >= quantity) {
             addIntoTable(name, sellPrice, buyPrice, cells.getFirst(), quantity, manufactureId);
             changeOccupancy(cells.getFirst(), quantity);
@@ -79,9 +87,45 @@ public class Product {
         }
     }
 
+    public static void printProductsInfo(String warehouse) {
+        OutputController.clearConsole();
+
+        int warehouseId = DataBase.getId("warehouses", "name", warehouse);
+        List<Integer> cells = getCellsList(warehouseId);
+        String params = String.join(",", Collections.nCopies(cells.size(), "?"));
+        String sqlQuery = "SELECT * FROM products WHERE storage_cell_id IN (" + params + ")";
+
+        try (Connection conn = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+             PreparedStatement preparedStatement = conn.prepareStatement(sqlQuery);
+
+             for (int i = 0; i < cells.size(); i++) {
+                 preparedStatement.setInt(i + 1, cells.get(i));
+             }
+
+             ResultSet resultSet = preparedStatement.executeQuery();
+
+             while (resultSet.next()) {
+                 System.out.println(resultSet.getString("name") +
+                         ": \nКоличество: " + resultSet.getInt("quantity")
+                         + "\nЗакупочная цена: " + resultSet.getInt("buy_price") +
+                         ", цена продажи: " + resultSet.getInt("sell_price"));
+                 System.out.println();
+             }
+        } catch (SQLException e) {
+            System.err.println("Ошибка: " + e.getMessage());
+        }
+    }
+
     private static void putInSeveralCells(String name, int buyPrice, int sellPrice, int quantity,
                                           int manufactureId, int warehouseId) {
         List<Integer> cells = getCellsList(warehouseId);
+
+        Iterator<Integer> cellIterator = cells.iterator();
+        while (cellIterator.hasNext()) {
+            if (getCellFreeSpace(cellIterator.next()) == 0) {
+                cellIterator.remove();
+            }
+        }
 
         int remainingQuantity = quantity;
 
@@ -215,14 +259,7 @@ public class Product {
             resultSet.close();
             preparedStatement.close();
         }catch (SQLException e) {
-            System.err.println("Ошибка4: " + e.getMessage());
-        }
-
-        Iterator<Integer> cellIterator = cells.iterator();
-        while (cellIterator.hasNext()) {
-            if (getCellFreeSpace(cellIterator.next()) == 0) {
-                cellIterator.remove();
-            }
+            System.err.println("Ошибка: " + e.getMessage());
         }
 
         return cells;
