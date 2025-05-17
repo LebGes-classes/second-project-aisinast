@@ -1,0 +1,200 @@
+package org.example;
+
+import org.example.database.DataBase;
+import org.example.services.Check;
+
+import java.sql.*;
+import java.util.List;
+import java.util.Scanner;
+
+public class SalePoint {
+    private int id;
+    private String city;
+    private String address;
+    private int managerId;
+
+    static Scanner scanner = new Scanner(System.in);
+
+    public static void openNewSellPoint() {
+        System.out.print("Введите город: ");
+        String city = scanner.nextLine();
+
+        Check.stringNotEmpty(city);
+
+        System.out.print("Введите адрес: ");
+        String address = scanner.nextLine();
+
+        Check.stringNotEmpty(address);
+
+        addIntoTable(city, address);
+    }
+
+    public static void closeSellPoint() {
+        System.out.println("Выберите id пункта продаж, который нужно закрыть, из списка ниже: ");
+
+        DataBase.printAll("sale_points", 4);
+
+        System.out.print("Ваш выбор: ");
+        int salePointId = scanner.nextInt();
+        scanner.nextLine();
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = String.format("UPDATE workers SET status = 'уволен' WHERE +" +
+                    "work_place_id = %s AND status = 'работает на пункте продаж'", salePointId);
+
+            try (Statement statement = connection.createStatement()) {
+                statement.executeUpdate(sqlQuery);
+
+                DataBase.removeRaw("sale_points", salePointId);
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при закрытии склада: " + e.getMessage());
+        }
+
+        System.out.println("Пункт продаж закрыт");
+    }
+
+    public static void printSalePointsInfo() {
+        int salePointId = printSalePointsAndChoose();
+
+        if (salePointId == 0) {
+            return;
+        }
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = "SELECT city, address, manager_id FROM sale_points WHERE id = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                preparedStatement.setInt(1, salePointId);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        String address = resultSet.getString("address");
+                        String city = resultSet.getString("city");
+                        int managerId = resultSet.getInt("manager_id");
+
+                        if (resultSet.wasNull()) {
+                            System.out.println("Пункт продаж: " + city + ", " + address +
+                                    ". Ответственное лицо не назначено");
+                        } else {
+                            System.out.println("Пункт продаж: " + city + ", " + address +
+                                    ". Ответственное лицо: " + Warehouse.getManagerName(managerId));
+                        }
+                    } else {
+                        System.out.println("Запись не найдена");
+
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при выводе информации о пункте продаж: " + e.getMessage());
+        }
+    }
+
+    public static void changeManager() {
+        int salePointId = printSalePointsAndChoose();
+
+        if (salePointId == 0) {
+            return;
+        }
+
+        int rsLength = 0;
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = "SELECT * FROM workers WHERE work_place_id = ? AND status = 'работает на пункте продаж'";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                preparedStatement.setInt(1, salePointId);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        for (int i = 1; i <= 6; i++) {
+                            System.out.print(resultSet.getString(i) + "\t");
+                        }
+
+                        rsLength ++;
+
+                        System.out.println();
+                    }
+                }
+            }
+
+            if (rsLength == 0) {
+                System.out.println("В выбранном пункте продаж нет ни одного работника");
+                return;
+            }
+
+            System.out.print("Введите номер работника, которого вы хотите назначить ответственным лицом: ");
+            int managerId = scanner.nextInt();
+            scanner.nextLine();
+
+            String newSqlQuery = "UPDATE sale_points SET manager_id = ? WHERE id = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(newSqlQuery)) {
+                preparedStatement.setInt(1, managerId);
+                preparedStatement.setInt(2, salePointId);
+
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при смене ответственного лица: " + e.getMessage());
+        }
+
+        System.out.println("Смена ответственного лица произошла успешно");
+    }
+
+    private static int printSalePointsAndChoose() {
+        System.out.println("Выберите пункт продаж из списка ниже: ");
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = "SELECT city, address FROM sale_points";
+
+            try (Statement statement = connection.createStatement()) {
+                try (ResultSet resultSet = statement.executeQuery(sqlQuery)) {
+                    while (resultSet.next()) {
+                        String city = resultSet.getString("city");
+                        String address = resultSet.getString("address");
+
+                        System.out.println(city + ", " + address);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при выводе пунктов продаж: " + e.getMessage());
+        }
+
+        System.out.print("Введите город подходящего пункта выдачи: ");
+        String city = scanner.nextLine();
+
+        System.out.print("Введите адрес подходящего пункта продаж: ");
+        String address = scanner.nextLine();
+
+        int salePointId = 0;
+
+        if (DataBase.getCellValueByTwoConditions("sale_points", "id",
+                "city", city, "address", address) == null) {
+            System.out.println("Некорректно введены данные!");
+        } else {
+            salePointId = (int) DataBase.getCellValueByTwoConditions("sale_points", "id",
+                    "city", city, "address", address);
+        }
+
+        return salePointId;
+    }
+
+    private static void addIntoTable(String city, String address) {
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = "INSERT INTO sale_points (city, address) VALUES (?, ?)";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                preparedStatement.setString(1, city);
+                preparedStatement.setString(2, address);
+                preparedStatement.executeUpdate();
+            }
+
+            System.out.println("Пункт продаж добавлен успешно!");
+        } catch (SQLException e) {
+            System.err.println("Ошибка при добавлении пункта продаж: " + e.getMessage());
+        }
+    }
+}
