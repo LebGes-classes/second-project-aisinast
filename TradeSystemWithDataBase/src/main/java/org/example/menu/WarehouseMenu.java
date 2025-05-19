@@ -1,6 +1,7 @@
 package org.example.menu;
 
 import org.example.Product;
+import org.example.StorageCell;
 import org.example.Warehouse;
 import org.example.terminal.OutputController;
 import org.example.terminal.Printer;
@@ -69,7 +70,7 @@ public class WarehouseMenu {
             case 6:
                 OutputController.clearConsole();
 
-                Product.moveProductMenu();
+                StorageCell.addNewCell();
 
                 OutputController.waitForEnter();
                 showWarehouseMenu();
@@ -78,6 +79,14 @@ public class WarehouseMenu {
                 OutputController.clearConsole();
 
                 Warehouse.changeManager();
+                OutputController.waitForEnter();
+                showWarehouseMenu();
+                break;
+            case 8:
+                OutputController.clearConsole();
+
+                Warehouse.moveToSellPoint();
+
                 OutputController.waitForEnter();
                 showWarehouseMenu();
                 break;

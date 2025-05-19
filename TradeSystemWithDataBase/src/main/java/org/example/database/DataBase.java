@@ -3,7 +3,6 @@ package org.example.database;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class DataBase {
     private static final String DATABASE_URL = "jdbc:sqlite:trade-system.db";
@@ -26,7 +25,7 @@ public class DataBase {
     }
 
     // метод для подсчета количества строк, удовлетворяющих условию
-    public static int sqliteCountRows(String tableName, String fieldName, String fieldValue) {
+    public static int sqliteCountRowsWithCondition(String tableName, String fieldName, String fieldValue) {
         int count = 0;
 
         try (Connection conn = DriverManager.getConnection(DATABASE_URL)) {
@@ -175,4 +174,50 @@ public class DataBase {
         return null;
     }
 
+    public static void changeCellValue(String tableName, String columnName, Object value, int cellId) {
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+             String sqlQuery = String.format("UPDATE %s SET %s = ? WHERE id = ?", tableName, columnName);
+
+             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                 preparedStatement.setObject(1, value);
+                 preparedStatement.setInt(2, cellId);
+
+                 preparedStatement.executeUpdate();
+             }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при изменении значения ячейки таблицы: " + e.getMessage());
+        }
+    }
+
+    public static Object getCellValue(String tableName, String targetColumn, String column, Object value) {
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = String.format("SELECT %s from %s where %s = ?", targetColumn, tableName, column);
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                preparedStatement.setObject(1, value);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        ResultSetMetaData meta = resultSet.getMetaData();
+                        int columnType = meta.getColumnType(1);
+
+                        switch (columnType) {
+                            case Types.INTEGER:
+                                return resultSet.getInt(targetColumn);
+                            case Types.VARCHAR:
+                                return resultSet.getString(targetColumn);
+                            case Types.DOUBLE:
+                                return resultSet.getDouble(targetColumn);
+                            default:
+                                return resultSet.getObject(targetColumn);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при поиске ячеек: " + e.getMessage());
+        }
+
+        return null;
+    }
 }

@@ -3,9 +3,13 @@ package org.example;
 import org.example.database.DataBase;
 import org.example.services.Check;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.sql.*;
 import java.util.Scanner;
+
+import static org.example.Product.getCellsList;
 
 public class Warehouse {
     int id;
@@ -44,7 +48,7 @@ public class Warehouse {
     public static void closeWarehouse() {
         String warehouse = printWarehousesAndChoose();
 
-        if (DataBase.sqliteCountRows("warehouses", "name", warehouse) == 0) {
+        if (DataBase.sqliteCountRowsWithCondition("warehouses", "name", warehouse) == 0) {
             System.out.println("Такого склада не существует");
             return;
         }
@@ -111,8 +115,6 @@ public class Warehouse {
         } catch (SQLException e) {
             System.err.println("Ошибка: " + e.getMessage());
         }
-
-        String sqlQuery = "UPDATE warehouses SET manager_id = ? WHERE name = ?";
     }
 
     private static void getWarehouseInfo(String name) {
@@ -147,7 +149,7 @@ public class Warehouse {
         }
     }
 
-    public static String printWarehousesAndChoose() {
+    public static String printWarehousesAndChoose() throws IndexOutOfBoundsException {
         List<String> warehouses = DataBase.columnToList(tableName, "name");
 
         String[] warehousesArray = warehouses.toArray(new String[0]);
@@ -162,16 +164,157 @@ public class Warehouse {
         int warehouseNumber = scanner.nextInt() - 1;
         scanner.nextLine();
 
-        String warehouseName = warehousesArray[warehouseNumber];
-
-        return warehouseName;
+        return warehousesArray[warehouseNumber];
     }
 
     private static String createWarehouseName(String city) {
-        return city + "-" + (DataBase.sqliteCountRows(tableName, "city", city) + 1);
+        return city + "-" + (DataBase.sqliteCountRowsWithCondition(tableName, "city", city) + 1);
     }
 
-    private static String getManagerName(int managerId) {
+    private static class Node {
+        int id;
+        String name;
+        int quantity;
+
+        public Node(int id, String name, int quantity) {
+            this.id = id;
+            this.name = name;
+            this.quantity = quantity;
+        }
+
+        public String toString() {
+            return id + ". " + name + " (" + quantity + " шт.)";
+        }
+
+    }
+
+    public static void moveToSellPoint() {
+        String warehouse = null;
+        List<Node> products = new ArrayList<>();
+
+        try {
+            warehouse = printWarehousesAndChoose();
+        } catch (IndexOutOfBoundsException e) {
+            System.err.println("Ошибка при выборе склада: " + e.getMessage());
+            return;
+        }
+        int warehouseId = DataBase.getId("warehouses", "name", warehouse);
+
+        System.out.println("Выберите товар, который нужно переместить, и его количество:");
+
+        List<Integer> cells = getCellsList(warehouseId);
+        if (cells.isEmpty()) {
+            System.out.println("Ошибка: На складе с ID " + warehouseId + " нет ячеек хранения");
+            return;
+        }
+
+        String params = String.join(",", Collections.nCopies(cells.size(), "?"));
+
+        ArrayList<Node> nodes = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = "SELECT * FROM products WHERE storage_cell_id IN (" + params + ")";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                for (int i = 0; i < cells.size(); i++) {
+                    preparedStatement.setInt(i + 1, cells.get(i));
+                }
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    int i = 1;
+                    while (resultSet.next()) {
+                        Node node = new Node(resultSet.getInt("id"), resultSet.
+                                getString("name"), resultSet.getInt("quantity"));
+                        System.out.println(node.toString());
+                        nodes.add(node);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при перемещении товара: " + e.getMessage());
+            return;
+        }
+
+        if (nodes.isEmpty()) {
+            System.out.println("На этом складе нет товаров");
+            return;
+        }
+
+        System.out.print("Введите id товара: ");
+        int productId = scanner.nextInt();
+        scanner.nextLine();
+
+        String productName = (String) DataBase.getCellValue("products",
+                "name", "id", productId);
+
+        int sellPrice = (int) DataBase.getCellValue("products", "sell_price",
+                "id", productId);
+        int buyPrice = (int) DataBase.getCellValue("products", "buy_price",
+                "id", productId);
+        int manufactureId = (int) DataBase.getCellValue("products", "manufacture_id",
+                "id", productId);
+
+        System.out.print("Введите количество: ");
+        int quantity = scanner.nextInt();
+        scanner.nextLine();
+
+        if (quantity <= 0) {
+            System.out.println("Количество не может быть меньше или равно нулю");
+            return;
+        } else if (quantity > countProductsInWarehouse(warehouseId, productName)) {
+            System.out.println("Количество не может быть больше имеющегося на складе");
+            return;
+        }
+
+        int salePointId = SalePoint.printSalePoints();
+        int salePointCellId = SalePoint.getCellId(salePointId);
+
+        if (quantity > Product.getCellFreeSpace(salePointCellId)) {
+            System.out.println("На выбранном пункте продаж не достаточно места");
+            return;
+        }
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            int remainingQuantity = quantity;
+            for (int cellId : cells) {
+                if (remainingQuantity <= 0) break;
+
+                String sqlQuery = "SELECT quantity FROM products WHERE name = ? AND storage_cell_id = ?";
+                try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                    preparedStatement.setString(1, productName);
+                    preparedStatement.setInt(2, cellId);
+                    try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                        if (resultSet.next()) {
+                            int currentQuantity = resultSet.getInt("quantity");
+                            int qtyToMove = Math.min(remainingQuantity, currentQuantity);
+
+                            String updateQuery = "UPDATE products SET quantity = quantity - ? WHERE name = ? " +
+                                    "AND storage_cell_id = ?";
+                            try (PreparedStatement updateStmt = connection.prepareStatement(updateQuery)) {
+                                updateStmt.setInt(1, qtyToMove);
+                                updateStmt.setString(2, productName);
+                                updateStmt.setInt(3, cellId);
+                                updateStmt.executeUpdate();
+                            }
+
+                            Product.changeOccupancy(cellId, -qtyToMove);
+                            remainingQuantity -= qtyToMove;
+                        }
+                    }
+                }
+            }
+
+            Product.addIntoTable(productName, sellPrice, buyPrice, salePointCellId, quantity, manufactureId);
+            Product.changeOccupancy(salePointCellId, quantity);
+
+            System.out.println(productName + " (" + quantity + " шт.) перемещен на пункт продаж");
+
+        } catch (SQLException e) {
+            System.err.println("Ошибка при перемещении товара: " + e.getMessage());
+        }
+
+        deleteProductsWhereQuantityNull(productName);
+    }
+
+    public static String getManagerName(int managerId) {
         String sqlQuery = "SELECT name, surname FROM workers WHERE id = ?";
 
         String name = "";
@@ -196,6 +339,43 @@ public class Warehouse {
         return name + " " + surname;
     }
 
+    private static int countProductsInWarehouse(int warehouseId, String productName) {
+        List<Integer> cells = getCellsList(warehouseId);
+        String params = String.join(",", Collections.nCopies(cells.size(), "?"));
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = "SELECT SUM(quantity) FROM products WHERE name = ? AND storage_cell_id IN (" + params + ")";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                preparedStatement.setString(1, productName);
+                for (int i = 0; i < cells.size(); i++) {
+                    preparedStatement.setInt(i + 2, cells.get(i));
+                }
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return resultSet.getInt(1);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при подсчете продуктов: " + e.getMessage());
+        }
+
+        return 0;
+    }
+
+    private static void deleteProductsWhereQuantityNull (String productName) {
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())){
+            String deleteQuery = "DELETE FROM products WHERE name = ? AND quantity = 0";
+            try (PreparedStatement deleteStmt = connection.prepareStatement(deleteQuery)) {
+                deleteStmt.setString(1, productName);
+                deleteStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
     private static void addStorageIntoTable(String name, String city, String address) {
         String sqlQuery = "INSERT INTO warehouses (name, city, address) VALUES (?, ?, ?)";
 

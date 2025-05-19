@@ -14,9 +14,12 @@ public class StorageCell {
     static Scanner scanner = new Scanner(System.in);
 
     public static void addNewCell() {
+        String status = "ячейка склада";
+
+        int warehouseId = 0;
         System.out.println("На какой склад добавить ячейку?");
         String warehouse = Warehouse.printWarehousesAndChoose();
-        int warehouseId = DataBase.getId("warehouses", "name", warehouse);
+        warehouseId = DataBase.getId("warehouses", "name", warehouse);
 
         System.out.print("Введите вместимость: ");
         int capacity = scanner.nextInt();
@@ -26,11 +29,11 @@ public class StorageCell {
             System.out.println("Ячейка не может иметь отрицательную или нулевую вместимость");
         }
 
-        addIntoTable(capacity, warehouseId);
+        addIntoTable(capacity, warehouseId, status);
     }
 
-    private static void addIntoTable(int capacity, int warehouseId) {
-        String sqlQuery = "INSERT INTO storage_cells (capacity, occupancy, warehouse_id) VALUES (?, ?, ?)";
+    public static void addIntoTable(int capacity, int warehouseId, String status) {
+        String sqlQuery = "INSERT INTO storage_cells (capacity, occupancy, storage_id, status) VALUES (?, ?, ?, ?)";
 
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
@@ -38,6 +41,7 @@ public class StorageCell {
             preparedStatement.setInt(1, capacity);
             preparedStatement.setInt(2, 0);
             preparedStatement.setInt(3, warehouseId);
+            preparedStatement.setString(4, status);
 
             preparedStatement.executeUpdate();
 

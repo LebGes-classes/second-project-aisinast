@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.database.DataBase;
+import org.example.menu.SalePointMenu;
 import org.example.services.Check;
 
 import javax.xml.crypto.Data;
@@ -79,7 +80,25 @@ public class Worker {
                 addWorkerIntoTable(name, surname, number, warehouseId, status);
 
                 break;
-            case 2: status = "работает на пункте выдачи";
+            case 2:
+                status = "работает на пункте продаж";
+
+                List<String> salePoints = DataBase.columnToList("sale_points", "address");
+
+                for (int i = 0; i < salePoints.size(); i++) {
+                    System.out.println(i + 1 + ". " + salePoints.get(i));
+                }
+
+                System.out.println("Ваш выбор: ");
+                int salePointNumber = scanner.nextInt();
+                scanner.nextLine();
+
+                String salePointAddress = salePoints.get(salePointNumber - 1);
+                int salePointId = DataBase.getId("sale_points", "address", salePointAddress);
+
+                addWorkerIntoTable(name, surname, number, salePointId, status);
+
+                break;
             default:
                 System.out.println("Некорректный ввод! Повторите попытку");
                 break;

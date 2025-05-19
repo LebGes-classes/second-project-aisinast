@@ -12,7 +12,7 @@ public class SalePointMenu {
     static Printer printer = new Printer();
     static Scanner scanner = new Scanner(System.in);
 
-    public static void showSellPointMenu() {
+    public static void showSalePointMenu() {
         try {
             printer.printTextFile(new File("src/main/java/org/example/menu/texts/sale_point_menu.txt"));
         } catch (FileNotFoundException e) {
@@ -30,7 +30,7 @@ public class SalePointMenu {
                 SalePoint.openNewSellPoint();
 
                 OutputController.waitForEnter();
-                showSellPointMenu();
+                showSalePointMenu();
                 break;
             case 2:
                 OutputController.clearConsole();
@@ -38,7 +38,7 @@ public class SalePointMenu {
                 SalePoint.closeSellPoint();
 
                 OutputController.waitForEnter();
-                showSellPointMenu();
+                showSalePointMenu();
                 break;
             case 3:
                 OutputController.clearConsole();
@@ -46,7 +46,7 @@ public class SalePointMenu {
                 SalePoint.changeManager();
 
                 OutputController.waitForEnter();
-                showSellPointMenu();
+                showSalePointMenu();
                 break;
             case 4:
                 OutputController.clearConsole();
@@ -54,7 +54,7 @@ public class SalePointMenu {
                 SalePoint.printSalePointsInfo();
 
                 OutputController.waitForEnter();
-                showSellPointMenu();
+                showSalePointMenu();
                 break;
             case 5:
             case 0:
@@ -65,7 +65,7 @@ public class SalePointMenu {
             default:
                 OutputController.clearConsole();
                 System.out.println("Некорректный ввод! Повторите попытку");
-                showSellPointMenu();
+                showSalePointMenu();
                 OutputController.waitForEnter();
                 break;
         }

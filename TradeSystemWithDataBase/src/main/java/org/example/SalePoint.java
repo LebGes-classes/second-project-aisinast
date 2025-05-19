@@ -4,7 +4,6 @@ import org.example.database.DataBase;
 import org.example.services.Check;
 
 import java.sql.*;
-import java.util.List;
 import java.util.Scanner;
 
 public class SalePoint {
@@ -27,6 +26,15 @@ public class SalePoint {
         Check.stringNotEmpty(address);
 
         addIntoTable(city, address);
+
+        int warehouseId = (int) DataBase.getCellValueByTwoConditions("sale_points", "id",
+                "city", city, "address", address);
+
+        System.out.print("Введите вместительность пункта продаж: ");
+        int capacity = scanner.nextInt();
+        scanner.nextLine();
+
+        StorageCell.addIntoTable(capacity, warehouseId, "ячейка пункта продаж");
     }
 
     public static void closeSellPoint() {
@@ -55,7 +63,7 @@ public class SalePoint {
     }
 
     public static void printSalePointsInfo() {
-        int salePointId = printSalePointsAndChoose();
+        int salePointId = printSalePoints();
 
         if (salePointId == 0) {
             return;
@@ -92,7 +100,7 @@ public class SalePoint {
     }
 
     public static void changeManager() {
-        int salePointId = printSalePointsAndChoose();
+        int salePointId = printSalePoints();
 
         if (salePointId == 0) {
             return;
@@ -143,7 +151,7 @@ public class SalePoint {
         System.out.println("Смена ответственного лица произошла успешно");
     }
 
-    private static int printSalePointsAndChoose() {
+    public static int printSalePoints() {
         System.out.println("Выберите пункт продаж из списка ниже: ");
 
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
@@ -180,6 +188,26 @@ public class SalePoint {
         }
 
         return salePointId;
+    }
+
+    public static int getCellId(int salePointId) {
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = "SELECT id FROM storage_cells WHERE storage_id = ? AND status = 'ячейка пункта продаж'";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                preparedStatement.setInt(1, salePointId);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return resultSet.getInt(1);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при получении ячейки: " + e.getMessage());
+        }
+
+        return 0;
     }
 
     private static void addIntoTable(String city, String address) {

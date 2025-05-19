@@ -36,7 +36,7 @@ public class Manufacture {
             return;
         }
 
-        if (DataBase.sqliteCountRows(getTableName(), "name", name) != 0) {
+        if (DataBase.sqliteCountRowsWithCondition(getTableName(), "name", name) != 0) {
             System.out.println("Производитель с таким названием уже существует!");
             return;
         }

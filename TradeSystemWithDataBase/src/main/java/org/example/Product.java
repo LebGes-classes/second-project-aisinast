@@ -19,7 +19,7 @@ public class Product {
     static Scanner scanner = new Scanner(System.in);
 
     public static void addNewProduct(String warehouse) {
-        if (DataBase.sqliteCountRows("warehouses", "name", warehouse) == 0) {
+        if (DataBase.sqliteCountRowsWithCondition("warehouses", "name", warehouse) == 0) {
             System.out.println("Ячейки на этом складе отсутствуют");
             return;
         }
@@ -32,7 +32,7 @@ public class Product {
         try {
             Check.stringNotEmpty(name);
         } catch (IllegalArgumentException e) {
-            System.err.println("Ошибка1: " + e.getMessage());
+            System.err.println("Ошибка: " + e.getMessage());
             return;
         }
 
@@ -145,36 +145,26 @@ public class Product {
         }
     }
 
-    private static int getCurrentOccupancy(int storageCellId) {
+    public static int getCurrentOccupancy(Connection connection, int storageCellId) throws SQLException {
         String sqlQuery = "SELECT occupancy FROM storage_cells WHERE id = ?";
-
         int occupancy = 0;
-
-        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
             preparedStatement.setInt(1, storageCellId);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            while (resultSet.next()) {
-                occupancy = resultSet.getInt("occupancy");
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    occupancy = resultSet.getInt("occupancy");
+                }
             }
-
-            resultSet.close();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            System.err.println("Ошибка: " + e.getMessage());
         }
-
         return occupancy;
     }
 
-    private static void changeOccupancy(int storageCellId, int occupancyChange) {
+    public static void changeOccupancy(int storageCellId, int occupancyChange) {
         String sqlQuery = "UPDATE storage_cells SET occupancy = ? WHERE id = ?";
 
-        int newOccupancy = getCurrentOccupancy(storageCellId) + occupancyChange;
-
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            int newOccupancy = getCurrentOccupancy(connection, storageCellId) + occupancyChange;
+
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
 
             preparedStatement.setInt(1, newOccupancy);
@@ -195,8 +185,10 @@ public class Product {
         int delta = 0;
 
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
-            String sqlQuery1 = "SELECT SUM(capacity) AS total_capacity FROM storage_cells WHERE warehouse_id = ?";
-            String sqlQuery2 = "SELECT SUM(occupancy) AS total_occupancy FROM storage_cells WHERE warehouse_id = ?";
+            String sqlQuery1 = "SELECT SUM(capacity) AS total_capacity FROM storage_cells WHERE storage_id = ? AND " +
+                    "status = 'ячейка склада'";
+            String sqlQuery2 = "SELECT SUM(occupancy) AS total_occupancy FROM storage_cells WHERE " +
+                    "storage_id = ? AND status = 'ячейка склада'";
 
             PreparedStatement preparedStatement1 = connection.prepareStatement(sqlQuery1);
             PreparedStatement preparedStatement2 = connection.prepareStatement(sqlQuery2);
@@ -228,7 +220,7 @@ public class Product {
         return delta;
     }
 
-    private static int getCellFreeSpace(int storageCellId) {
+    public static int getCellFreeSpace(int storageCellId) {
         int freeSpace = 0;
 
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
@@ -249,17 +241,17 @@ public class Product {
             resultSet.close();
             preparedStatement.close();
         } catch (SQLException e) {
-            System.err.println("Ошибка3: " + e.getMessage());
+            System.err.println("Ошибка: " + e.getMessage());
         }
 
         return freeSpace;
     }
 
-    private static List<Integer> getCellsList(int warehouseId) {
+    static List<Integer> getCellsList(int warehouseId) {
         List<Integer> cells = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
-            String sqlQuery = "SELECT id FROM storage_cells WHERE warehouse_id = ?";
+            String sqlQuery = "SELECT id FROM storage_cells WHERE storage_id = ? AND status = 'ячейка склада'";
 
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setInt(1, warehouseId);
@@ -279,8 +271,8 @@ public class Product {
         return cells;
     }
 
-    private static void addIntoTable(String name, int sellPrice, int buyPrice, int storageCellId,
-                                     int quantity, int manufactureId) {
+    static void addIntoTable(String name, int sellPrice, int buyPrice, int storageCellId,
+                             int quantity, int manufactureId) {
         String sqlQuery = "INSERT INTO products (name, sell_price, buy_price, storage_cell_id, quantity, " +
                 "manufacture_id) VALUES (?, ?, ?, ?, ?, ?)";
 
