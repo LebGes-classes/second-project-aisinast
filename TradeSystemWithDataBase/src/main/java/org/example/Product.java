@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.accounting.ManufactureAccounting;
 import org.example.database.DataBase;
 import org.example.services.Check;
 import org.example.terminal.OutputController;
@@ -85,6 +86,8 @@ public class Product {
         } else {
             putInSeveralCells(name, buyPrice, sellPrice, quantity, manufactureId, warehouseId);
         }
+
+        ManufactureAccounting.registerSale(buyPrice * quantity, manufactureId, name);
     }
 
     public static void printProductsInfo(String warehouse) {

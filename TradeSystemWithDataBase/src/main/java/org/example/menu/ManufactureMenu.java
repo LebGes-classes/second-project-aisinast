@@ -50,6 +50,14 @@ public class ManufactureMenu {
                 OutputController.waitForEnter();
                 showManufactureMenu();
                 break;
+            case 4:
+                OutputController.clearConsole();
+
+                Manufacture.printManufactureProfit();
+
+                OutputController.waitForEnter();
+                showManufactureMenu();
+                break;
             case 0:
                 OutputController.clearConsole();
                 AppMenu.showAppMenu();

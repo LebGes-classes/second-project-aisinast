@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.accounting.ManufactureAccounting;
 import org.example.database.DataBase;
 import org.example.services.Check;
 
@@ -52,6 +53,18 @@ public class Manufacture {
         }
 
         addManufactureIntoTable(name, country);
+    }
+
+    public static void printManufactureProfit() {
+        System.out.println("Выберите производство из списка ниже: ");
+        DataBase.printAll("manufactures", 3);
+        System.out.print("Ваш выбор (введите id) : ");
+        int manufactureId = scanner.nextInt();
+        scanner.nextLine();
+
+        int profit = ManufactureAccounting.getProfitInfo(manufactureId);
+
+        System.out.println("Прибыль за все время: " + profit);
     }
 
     public static void removeManufacture() {
