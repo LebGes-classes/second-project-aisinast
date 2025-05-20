@@ -3,6 +3,7 @@ package org.example;
 import org.example.database.DataBase;
 import org.example.services.Check;
 
+import javax.xml.transform.Source;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -61,6 +62,27 @@ public class Buyer {
         int shoppingCardId = ShoppingCard.createNewShoppingCard();
 
         addBuyerIntoTable(name, surname, phoneNumber, city, shoppingCardId);
+    }
+
+    public static void removeBuyer() {
+        System.out.print("Введите имя пользователя: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Введите фамилию пользователя: ");
+        String surname = scanner.nextLine();
+
+        int id = 0;
+        try {
+            id = (int) DataBase.getCellValueByTwoConditions("buyers", "id", "name",
+                    name, "surname", surname);
+        } catch (NullPointerException e) {
+            System.err.println("Ошибка при получении id пользователя: такого пользователя не существует" +
+                    " или данные введены некорректно");
+            return;
+        }
+
+        DataBase.removeRaw("buyers", id);
+        System.out.println("Пользователь " + name + " " + surname + " удален");
     }
 
     private static void addBuyerIntoTable(String name, String surname, String phoneNumber,

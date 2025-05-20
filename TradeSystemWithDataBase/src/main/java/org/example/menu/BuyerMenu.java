@@ -34,6 +34,13 @@ public class BuyerMenu {
                 showBuyerMenu();
                 break;
             case 2:
+                OutputController.clearConsole();
+
+                Buyer.removeBuyer();
+
+                OutputController.waitForEnter();
+                showBuyerMenu();
+                break;
             case 3:
             case 4:
             case 5:
