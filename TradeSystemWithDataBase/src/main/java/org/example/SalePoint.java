@@ -37,7 +37,7 @@ public class SalePoint {
         StorageCell.addIntoTable(capacity, warehouseId, "ячейка пункта продаж");
     }
 
-    public static void closeSellPoint() {
+    public static void closeSalePoint() {
         System.out.println("Выберите id пункта продаж, который нужно закрыть, из списка ниже: ");
 
         DataBase.printAll("sale_points", 4);
@@ -188,6 +188,37 @@ public class SalePoint {
         }
 
         return salePointId;
+    }
+
+    public static void printReadyToOrderProducts(int salePointId) {
+        int count = 0;
+
+        int storageCellId = (int) DataBase.getCellValueByTwoConditions("storage_cells", "id",
+                "status", "ячейка пункта продаж", "storage_id", salePointId);
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = "SELECT name, quantity FROM products WHERE storage_cell_id = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                preparedStatement.setInt(1, storageCellId);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        String name = resultSet.getString("name");
+                        int quantity = resultSet.getInt("quantity");
+
+                        System.out.println(name + " (" + quantity + " шт.)");
+                        count++;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при выводе товаров: " + e.getMessage());
+        }
+
+        if (count == 0) {
+            System.out.println("Товары в выбранном пункте продаж отсутствуют");
+        }
     }
 
     public static int getCellId(int salePointId) {
