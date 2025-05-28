@@ -68,26 +68,10 @@ public class DataBase {
 
     // метод для получения айди по строковому значению некоторого столбца
     public static int getId(String tableName, String fieldName, String fieldValue) {
-        int id = 0;
 
-        try (Connection conn = DriverManager.getConnection(DATABASE_URL)){
-            String sqlQuery = String.format("SELECT id FROM %s WHERE %s = ?", tableName, fieldName);
-
-            PreparedStatement pstmt = conn.prepareStatement(sqlQuery);
-            pstmt.setString(1, fieldValue);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    id = rs.getInt("id");
-                }
-            }
-
-            pstmt.close();
-        } catch (SQLException e) {
-            System.err.println("Ошибка при работе с базой данных: " + e.getMessage());
-        }
-
+        int id = (int) getCellValue(tableName, "id", fieldName, fieldValue);
         return id;
+
     }
 
     // метод для вывода таблицы
@@ -174,21 +158,6 @@ public class DataBase {
         return null;
     }
 
-    public static void changeCellValue(String tableName, String columnName, Object value, int cellId) {
-        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
-             String sqlQuery = String.format("UPDATE %s SET %s = ? WHERE id = ?", tableName, columnName);
-
-             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
-                 preparedStatement.setObject(1, value);
-                 preparedStatement.setInt(2, cellId);
-
-                 preparedStatement.executeUpdate();
-             }
-        } catch (SQLException e) {
-            System.err.println("Ошибка при изменении значения ячейки таблицы: " + e.getMessage());
-        }
-    }
-
     public static Object getCellValue(String tableName, String targetColumn, String column, Object value) {
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
             String sqlQuery = String.format("SELECT %s from %s where %s = ?", targetColumn, tableName, column);
@@ -220,4 +189,22 @@ public class DataBase {
 
         return null;
     }
+
+    public static int getLastRowId(String tableName) {
+        int id = 0;
+
+        try (Connection connection = DriverManager.getConnection(DATABASE_URL)) {
+            try (Statement stmt = connection.createStatement();
+                 ResultSet rs = stmt.executeQuery(String.format("SELECT MAX(id) FROM %s", tableName))) {
+                if (rs.next()) {
+                    id = rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при получении индекса последней строки: " + e.getMessage());
+        }
+
+        return id;
+    }
+
 }
