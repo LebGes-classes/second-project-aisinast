@@ -3,19 +3,10 @@ package org.example;
 import org.example.database.DataBase;
 import org.example.services.Check;
 
-import javax.xml.transform.Source;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Scanner;
 
 public class Buyer {
-    int id;
-    String name;
-    String surname;
-    String city;
-    int shoppingCardId;
 
     static Scanner scanner = new Scanner(System.in);
 
@@ -82,7 +73,58 @@ public class Buyer {
         }
 
         DataBase.removeRaw("buyers", id);
+        DataBase.removeRaw("shopping_cards", id);
         System.out.println("Пользователь " + name + " " + surname + " удален");
+    }
+
+    public static void getBuyerInfo() {
+        System.out.print("Введите имя покупателя: ");
+        String name = scanner.nextLine();
+
+        try {
+            Check.stringNotEmpty(name);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Имя покупателя введено некорректно: " + e.getMessage());
+            return;
+        }
+
+        System.out.print("Введите фамилию покупателя: ");
+        String surname = scanner.nextLine();
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = "SELECT phone_number, city, shopping_card_id FROM buyers WHERE name = ? AND surname = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+                preparedStatement.setString(1, name);
+                preparedStatement.setString(2, surname);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        String phoneNumber = resultSet.getString("phone_number");
+                        String city = resultSet.getString("city");
+                        int shoppingCardId = resultSet.getInt("shopping_card_id");
+
+                        System.out.println("Информация о покупателе:");
+                        System.out.println("Имя: " + name);
+                        System.out.println("Фамилия: " + surname);
+                        System.out.println("Номер телефона: " + phoneNumber);
+                        System.out.println("Город: " + city);
+                        System.out.println("ID корзины: " + shoppingCardId);
+                    } else {
+                        System.out.println("Покупатель с именем " + name + " и фамилией " + surname + " не найден");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при получении информации о покупателе: " + e.getMessage());
+        }
+
+        try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
+            String sqlQuery = "SELECT phone_number, city FROM buyers WHERE name = ? AND surname = ?";
+
+        } catch (SQLException e) {
+            System.err.println("Ошибка при получении информации о покупателе: " + e.getMessage());
+        }
     }
 
     private static void addBuyerIntoTable(String name, String surname, String phoneNumber,
