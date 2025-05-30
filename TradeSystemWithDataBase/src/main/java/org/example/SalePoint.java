@@ -3,7 +3,7 @@ package org.example;
 import org.example.database.DataBase;
 import org.example.menu.AppMenu;
 import org.example.services.Check;
-import org.example.services.SafeIntInput;
+import org.example.services.SafeInput;
 import org.example.terminal.OutputController;
 
 import java.sql.*;
@@ -18,13 +18,12 @@ public class SalePoint {
     static Scanner scanner = new Scanner(System.in);
 
     public static void openNewSellPoint() {
-        System.out.print("Введите город: ");
-        String city = scanner.nextLine();
+
+        String city = SafeInput.stringInput("Введите город: ");
 
         Check.stringNotEmpty(city);
 
-        System.out.print("Введите адрес: ");
-        String address = scanner.nextLine();
+        String address = SafeInput.stringInput("Введите адрес: ");
 
         Check.stringNotEmpty(address);
 
@@ -33,7 +32,7 @@ public class SalePoint {
         int warehouseId = (int) DataBase.getCellValueByTwoConditions("sale_points", "id",
                 "city", city, "address", address);
 
-        int capacity = SafeIntInput.safeInput("Введите вместительность пункта продаж: ");
+        int capacity = SafeInput.safeIntInput("Введите вместительность пункта продаж: ");
 
         StorageCell.addIntoTable(capacity, warehouseId, "ячейка пункта продаж");
     }
@@ -43,7 +42,7 @@ public class SalePoint {
 
         DataBase.printAll("sale_points", 4);
 
-        int salePointId = SafeIntInput.safeInput("Ваш выбор: ");
+        int salePointId = SafeInput.safeIntInput("Ваш выбор: ");
 
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
             String sqlQuery = String.format("UPDATE workers SET status = 'уволен' WHERE +" +
@@ -131,7 +130,7 @@ public class SalePoint {
                 return;
             }
 
-            int managerId = SafeIntInput.safeInput("Введите номер работника, которого вы хотите назначить " +
+            int managerId = SafeInput.safeIntInput("Введите номер работника, которого вы хотите назначить " +
                     "ответственным лицом: ");
 
             String newSqlQuery = "UPDATE sale_points SET manager_id = ? WHERE id = ?";
@@ -169,11 +168,9 @@ public class SalePoint {
             System.err.println("Ошибка при выводе пунктов продаж: " + e.getMessage());
         }
 
-        System.out.print("Введите город подходящего пункта выдачи: ");
-        String city = scanner.nextLine();
+        String city = SafeInput.stringInput("Введите город подходящего пункта выдачи: ");
 
-        System.out.print("Введите адрес подходящего пункта продаж: ");
-        String address = scanner.nextLine();
+        String address = SafeInput.stringInput("Введите адрес подходящего пункта продаж: ");
 
         int salePointId = 0;
 

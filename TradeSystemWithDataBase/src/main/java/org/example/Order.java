@@ -2,7 +2,7 @@ package org.example;
 
 import org.example.accounting.SalesAccounting;
 import org.example.database.DataBase;
-import org.example.services.SafeIntInput;
+import org.example.services.SafeInput;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -31,15 +31,14 @@ public class Order {
         // вывод списка товаров доступных к заказу
         SalePoint.printReadyToOrderProducts(salePointId);
 
-        System.out.print("Введите название товара: ");
-        String productName = scanner.nextLine();
+        String productName = SafeInput.stringInput("Введите название товара: ");
 
         if (DataBase.countRowsWithCondition("products", "name", productName) == 0) {
             System.out.println("Похоже, такой товар отсутствует. Повторите попытку");
             return;
         }
 
-        int quantity = SafeIntInput.safeInput("Введите количество: ");
+        int quantity = SafeInput.safeIntInput("Введите количество: ");
 
         // проверка количества товара на корректность
         if (quantity <= 0) {
@@ -51,11 +50,8 @@ public class Order {
         }
 
         // получение имени и фамилии покупателя для получения id его корзины
-        System.out.print("Введите имя покупателя: ");
-        String name = scanner.nextLine();
-
-        System.out.print("Введите фамилию покупателя: ");
-        String surname = scanner.nextLine();
+        String name = SafeInput.stringInput("Введите имя покупателя: ");
+        String surname = SafeInput.stringInput("Введите фамилию покупателя: ");
 
         int shoppingCardId = 0;
         try {
@@ -87,11 +83,10 @@ public class Order {
     }
 
     public static void returnOrder() {
-        System.out.print("Введите имя покупателя: ");
-        String name = scanner.nextLine();
 
-        System.out.print("Введите фамилию покупателя: ");
-        String surname = scanner.nextLine();
+        String name = SafeInput.stringInput("Введите имя покупателя: ");
+
+        String surname = SafeInput.stringInput("Введите фамилию покупателя: ");
 
         int shoppingCardId = 0;
         try {
@@ -135,7 +130,7 @@ public class Order {
             System.err.println("Ошибка при получении списка заказов: " + e.getMessage());
         }
 
-        int chosenId = SafeIntInput.safeInput("Введите id товара, который нужно вернуть: ");
+        int chosenId = SafeInput.safeIntInput("Введите id товара, который нужно вернуть: ");
 
         if (!ordersId.contains(chosenId)) {
             System.out.println("Некорректно введен id товара");

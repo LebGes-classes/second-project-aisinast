@@ -3,7 +3,7 @@ package org.example;
 import org.example.accounting.SalesAccounting;
 import org.example.database.DataBase;
 import org.example.services.Check;
-import org.example.services.SafeIntInput;
+import org.example.services.SafeInput;
 
 import java.sql.*;
 import java.util.Scanner;
@@ -28,8 +28,8 @@ public class Manufacture {
     static Scanner scanner = new Scanner(System.in);
 
     public static void addManufacture() {
-        System.out.print("Введите название производителя: ");
-        String name = scanner.nextLine();
+
+        String name = SafeInput.stringInput("Введите название производителя: ");
 
         try {
             Check.stringNotEmpty(name);
@@ -43,8 +43,7 @@ public class Manufacture {
             return;
         }
 
-        System.out.print("Введите страну производителя: ");
-        String country = scanner.nextLine();
+        String country = SafeInput.stringInput("Введите страну производителя: ");
 
         try {
             Check.stringNotEmpty(country);
@@ -60,7 +59,7 @@ public class Manufacture {
         System.out.println("Выберите производство из списка ниже: ");
         DataBase.printAll("manufactures", 3);
 
-        int manufactureId = SafeIntInput.safeInput("Ваш выбор (введите id) : ");
+        int manufactureId = SafeInput.safeIntInput("Ваш выбор (введите id) : ");
 
         int profit = SalesAccounting.getProfitInfo("manufacture", manufactureId);
 
@@ -68,8 +67,8 @@ public class Manufacture {
     }
 
     public static void removeManufacture() {
-        System.out.print("Введите название производителя: ");
-        String name = scanner.nextLine();
+
+        String name = SafeInput.stringInput("Введите название производителя: ");
 
         int id = DataBase.getId(tableName, "name", name);
 

@@ -1,11 +1,9 @@
 package org.example;
 
 import org.example.database.DataBase;
-import org.example.menu.SalePointMenu;
 import org.example.services.Check;
-import org.example.services.SafeIntInput;
+import org.example.services.SafeInput;
 
-import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.List;
 import java.util.Scanner;
@@ -23,8 +21,7 @@ public class Worker {
     static Scanner scanner = new Scanner(System.in);
 
     public static void hireWorker() {
-        System.out.print("Введите имя сотрудника: ");
-        String name = scanner.nextLine();
+]        String name = SafeInput.stringInput("Введите имя сотрудника: ");
 
         try {
             Check.stringNotEmpty(name);
@@ -33,8 +30,7 @@ public class Worker {
             return;
         }
 
-        System.out.print("Введите фамилию сотрудника: ");
-        String surname = scanner.nextLine();
+        String surname = SafeInput.stringInput("Введите фамилию сотрудника: ");
 
         try {
             Check.stringNotEmpty(surname);
@@ -43,8 +39,8 @@ public class Worker {
             return;
         }
 
-        System.out.print("Введите номер телефона сотрудника (должен начинаться с \"+7\", 12 символов): ");
-        String number = scanner.nextLine();
+        String number = SafeInput.stringInput("Введите номер телефона сотрудника (должен начинаться " +
+                "с \"+7\", 12 символов): ");
 
         try {
             Check.phoneNumberIsCorrect(number);
@@ -53,7 +49,7 @@ public class Worker {
             return;
         }
 
-        int choice = SafeIntInput.safeInput("Куда нанимается сотрудник? (1 - склад, 2 - пункт " +
+        int choice = SafeInput.safeIntInput("Куда нанимается сотрудник? (1 - склад, 2 - пункт " +
                 "выдачи заказов)\nВаш выбор: ");
 
         String status = null;
@@ -70,7 +66,7 @@ public class Worker {
                     System.out.println(i + 1 + ". " + warehousesArray[i]);
                 }
 
-                int warehouseNumber = SafeIntInput.safeInput("Ваш выбор: ");
+                int warehouseNumber = SafeInput.safeIntInput("Ваш выбор: ");
 
                 String warehouseName = warehousesArray[warehouseNumber - 1];
                 int warehouseId = DataBase.getId("warehouses", "name", warehouseName);
@@ -87,7 +83,7 @@ public class Worker {
                     System.out.println(i + 1 + ". " + salePoints.get(i));
                 }
 
-                int salePointNumber = SafeIntInput.safeInput("Ваш выбор: ");
+                int salePointNumber = SafeInput.safeIntInput("Ваш выбор: ");
 
                 String salePointAddress = salePoints.get(salePointNumber - 1);
                 int salePointId = DataBase.getId("sale_points", "address", salePointAddress);
@@ -102,8 +98,8 @@ public class Worker {
     }
 
     public static void dismissWorker() {
-        System.out.print("Введите имя сотрудника: ");
-        String name = scanner.nextLine();
+
+        String name = SafeInput.stringInput("Введите имя сотрудника: ");
 
         try {
             Check.stringNotEmpty(name);
@@ -112,8 +108,7 @@ public class Worker {
             return;
         }
 
-        System.out.print("Введите фамилию сотрудника: ");
-        String surname = scanner.nextLine();
+        String surname = SafeInput.stringInput("Введите фамилию сотрудника: ");
 
         try {
             Check.stringNotEmpty(surname);

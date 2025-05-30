@@ -2,7 +2,7 @@ package org.example;
 
 import org.example.database.DataBase;
 import org.example.services.Check;
-import org.example.services.SafeIntInput;
+import org.example.services.SafeInput;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,8 +23,8 @@ public class Warehouse {
     static Scanner scanner = new Scanner(System.in);
 
     public static void addNewWarehouse() {
-        System.out.print("Введите город: ");
-        String city = scanner.nextLine();
+
+        String city = SafeInput.stringInput("Введите город: ");
 
         try {
             Check.stringNotEmpty(city);
@@ -34,8 +34,7 @@ public class Warehouse {
 
         String name = createWarehouseName(city);
 
-        System.out.print("Введите адрес: ");
-        String address = scanner.nextLine();
+        String address = SafeInput.stringInput("Введите адрес: ");
 
         try {
             Check.stringNotEmpty(address);
@@ -97,7 +96,7 @@ public class Warehouse {
                 System.out.println();
             }
 
-            int choice = SafeIntInput.safeInput("Введите номер работника, которого вы хотите назначить " +
+            int choice = SafeInput.safeIntInput("Введите номер работника, которого вы хотите назначить " +
                     "ответственным лицом: ");
 
             String newSqlQuery = "UPDATE warehouses SET manager_id = ? WHERE name = ?";
@@ -160,7 +159,7 @@ public class Warehouse {
             System.out.println(i + 1 + ". " + warehousesArray[i]);
         }
 
-        int warehouseNumber = SafeIntInput.safeInput("Ваш выбор: ") - 1;
+        int warehouseNumber = SafeInput.safeIntInput("Ваш выбор: ") - 1;
 
         return warehousesArray[warehouseNumber];
     }
@@ -236,7 +235,7 @@ public class Warehouse {
             return;
         }
 
-        int productId = SafeIntInput.safeInput("Введите id товара: ");
+        int productId = SafeInput.safeIntInput("Введите id товара: ");
 
         String productName = (String) DataBase.getCellValue("products",
                 "name", "id", productId);
@@ -248,7 +247,7 @@ public class Warehouse {
         int manufactureId = (int) DataBase.getCellValue("products", "manufacture_id",
                 "id", productId);
 
-        int quantity = SafeIntInput.safeInput("Введите количество: ");
+        int quantity = SafeInput.safeIntInput("Введите количество: ");
 
         if (quantity <= 0) {
             System.out.println("Количество не может быть меньше или равно нулю");

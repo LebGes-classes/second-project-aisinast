@@ -2,7 +2,7 @@ package org.example.menu;
 
 import org.example.Buyer;
 import org.example.Order;
-import org.example.services.SafeIntInput;
+import org.example.services.SafeInput;
 import org.example.terminal.OutputController;
 import org.example.terminal.Printer;
 
@@ -20,7 +20,7 @@ public class BuyerMenu {
             throw new RuntimeException(e);
         }
 
-        int choice = SafeIntInput.safeInput("\nВаш выбор: ");
+        int choice = SafeInput.safeIntInput("\nВаш выбор: ");
 
         switch (choice) {
             case 1:

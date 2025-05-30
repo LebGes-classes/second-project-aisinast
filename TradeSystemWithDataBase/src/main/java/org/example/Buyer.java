@@ -2,6 +2,7 @@ package org.example;
 
 import org.example.database.DataBase;
 import org.example.services.Check;
+import org.example.services.SafeInput;
 
 import java.sql.*;
 import java.util.Scanner;
@@ -11,8 +12,8 @@ public class Buyer {
     static Scanner scanner = new Scanner(System.in);
 
     public static void addNewBuyer() {
-        System.out.print("Введите имя пользователя: ");
-        String name = scanner.nextLine();
+
+        String name = SafeInput.stringInput("Введите имя пользователя: ");
 
         try {
             Check.stringNotEmpty(name);
@@ -21,8 +22,7 @@ public class Buyer {
             return;
         }
 
-        System.out.print("Введите фамилию пользователя: ");
-        String surname = scanner.nextLine();
+        String surname = SafeInput.stringInput("Введите фамилию пользователя: ");
 
         try {
             Check.stringNotEmpty(surname);
@@ -31,8 +31,7 @@ public class Buyer {
             return;
         }
 
-        System.out.print("Введите номер телефона (начиная с \"+7\", 12 символов) : ");
-        String phoneNumber = scanner.nextLine();
+        String phoneNumber = SafeInput.stringInput("Введите номер телефона (начиная с \"+7\", 12 символов) : ");
 
         try {
             Check.phoneNumberIsCorrect(phoneNumber);
@@ -40,8 +39,7 @@ public class Buyer {
             System.out.println("Номер телефона введен некорректно: " + e.getMessage());
         }
 
-        System.out.print("Введите город пользователя: ");
-        String city = scanner.nextLine();
+        String city = SafeInput.stringInput("Введите город пользователя: ");
 
         try {
             Check.stringNotEmpty(city);
@@ -56,11 +54,10 @@ public class Buyer {
     }
 
     public static void removeBuyer() {
-        System.out.print("Введите имя пользователя: ");
-        String name = scanner.nextLine();
 
-        System.out.print("Введите фамилию пользователя: ");
-        String surname = scanner.nextLine();
+        String name = SafeInput.stringInput("Введите имя пользователя: ");
+
+        String surname = SafeInput.stringInput("Введите фамилию пользователя: ");
 
         int id = 0;
         try {
@@ -78,8 +75,8 @@ public class Buyer {
     }
 
     public static void getBuyerInfo() {
-        System.out.print("Введите имя покупателя: ");
-        String name = scanner.nextLine();
+
+        String name = SafeInput.stringInput("Введите имя покупателя: ");
 
         try {
             Check.stringNotEmpty(name);
@@ -88,8 +85,7 @@ public class Buyer {
             return;
         }
 
-        System.out.print("Введите фамилию покупателя: ");
-        String surname = scanner.nextLine();
+        String surname = SafeInput.stringInput("Введите фамилию покупателя: ");
 
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
             String sqlQuery = "SELECT phone_number, city, shopping_card_id FROM buyers WHERE name = ? AND surname = ?";

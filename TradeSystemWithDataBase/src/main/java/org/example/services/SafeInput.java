@@ -2,10 +2,10 @@ package org.example.services;
 
 import java.util.Scanner;
 
-public class SafeIntInput {
+public class SafeInput {
     private static Scanner scanner = new Scanner(System.in);
 
-    public static int safeInput(String prompt) {
+    public static int safeIntInput(String prompt) {
         System.out.print(prompt);
         while (true) {
             if (scanner.hasNextInt()) {
@@ -17,7 +17,14 @@ public class SafeIntInput {
                 System.out.print("Попробуйте ещё раз: ");
                 scanner.next();
             }
-
         }
+    }
+
+    public static String stringInput(String prompt) {
+        System.out.print(prompt);
+
+        String str = scanner.nextLine().trim().toLowerCase();
+
+        return str;
     }
 }
