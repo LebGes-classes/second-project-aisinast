@@ -3,6 +3,7 @@ package org.example;
 import org.example.accounting.SalesAccounting;
 import org.example.database.DataBase;
 import org.example.services.Check;
+import org.example.services.SafeIntInput;
 
 import java.sql.*;
 import java.util.Scanner;
@@ -58,9 +59,8 @@ public class Manufacture {
     public static void printManufactureProfit() {
         System.out.println("Выберите производство из списка ниже: ");
         DataBase.printAll("manufactures", 3);
-        System.out.print("Ваш выбор (введите id) : ");
-        int manufactureId = scanner.nextInt();
-        scanner.nextLine();
+
+        int manufactureId = SafeIntInput.safeInput("Ваш выбор (введите id) : ");
 
         int profit = SalesAccounting.getProfitInfo("manufacture", manufactureId);
 

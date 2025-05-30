@@ -1,16 +1,15 @@
 package org.example.menu;
 
 import org.example.SalePoint;
+import org.example.services.SafeIntInput;
 import org.example.terminal.OutputController;
 import org.example.terminal.Printer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
 
 public class SalePointMenu {
     static Printer printer = new Printer();
-    static Scanner scanner = new Scanner(System.in);
 
     public static void showSalePointMenu() {
         try {
@@ -19,9 +18,7 @@ public class SalePointMenu {
             throw new RuntimeException(e);
         }
 
-        System.out.print("Ваш выбор: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        int choice = SafeIntInput.safeInput("\nВаш выбор: ");
 
         switch (choice) {
             case 1:

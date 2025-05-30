@@ -3,6 +3,7 @@ package org.example;
 import org.example.database.DataBase;
 import org.example.menu.SalePointMenu;
 import org.example.services.Check;
+import org.example.services.SafeIntInput;
 
 import javax.xml.crypto.Data;
 import java.sql.*;
@@ -52,9 +53,8 @@ public class Worker {
             return;
         }
 
-        System.out.print("Куда нанимается сотрудник? (1 - склад, 2 - пункт выдачи заказов)\nВаш выбор: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        int choice = SafeIntInput.safeInput("Куда нанимается сотрудник? (1 - склад, 2 - пункт " +
+                "выдачи заказов)\nВаш выбор: ");
 
         String status = null;
         switch (choice) {
@@ -70,9 +70,7 @@ public class Worker {
                     System.out.println(i + 1 + ". " + warehousesArray[i]);
                 }
 
-                System.out.print("Ваш выбор: ");
-                int warehouseNumber = scanner.nextInt();
-                scanner.nextLine();
+                int warehouseNumber = SafeIntInput.safeInput("Ваш выбор: ");
 
                 String warehouseName = warehousesArray[warehouseNumber - 1];
                 int warehouseId = DataBase.getId("warehouses", "name", warehouseName);
@@ -89,9 +87,7 @@ public class Worker {
                     System.out.println(i + 1 + ". " + salePoints.get(i));
                 }
 
-                System.out.println("Ваш выбор: ");
-                int salePointNumber = scanner.nextInt();
-                scanner.nextLine();
+                int salePointNumber = SafeIntInput.safeInput("Ваш выбор: ");
 
                 String salePointAddress = salePoints.get(salePointNumber - 1);
                 int salePointId = DataBase.getId("sale_points", "address", salePointAddress);

@@ -1,17 +1,16 @@
 package org.example.menu;
 
 import org.example.Manufacture;
+import org.example.services.SafeIntInput;
 import org.example.terminal.OutputController;
 import org.example.terminal.Printer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
 
 public class ManufactureMenu {
 
     static Printer printer = new Printer();
-    static Scanner scanner = new Scanner(System.in);
 
     public static void showManufactureMenu(){
         try {
@@ -20,10 +19,7 @@ public class ManufactureMenu {
             throw new RuntimeException(e);
         }
 
-        System.out.print("\nВаш выбор: ");
-
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        int choice = SafeIntInput.safeInput("\nВаш выбор: ");
 
         switch (choice) {
             case 1:

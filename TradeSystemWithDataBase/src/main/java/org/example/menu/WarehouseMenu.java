@@ -3,15 +3,16 @@ package org.example.menu;
 import org.example.Product;
 import org.example.StorageCell;
 import org.example.Warehouse;
+import org.example.services.SafeIntInput;
 import org.example.terminal.OutputController;
 import org.example.terminal.Printer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
+
 
 public class WarehouseMenu {
-    static Scanner scanner = new Scanner(System.in);
+
     static Printer printer = new Printer();
 
     public static void showWarehouseMenu() {
@@ -23,9 +24,7 @@ public class WarehouseMenu {
              throw new RuntimeException(e);
         }
 
-        System.out.print("\nВаш выбор: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        int choice = SafeIntInput.safeInput("\nВаш выбор: ");
 
         switch (choice) {
             case 1:

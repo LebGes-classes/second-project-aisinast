@@ -2,6 +2,7 @@ package org.example;
 
 import org.example.accounting.SalesAccounting;
 import org.example.database.DataBase;
+import org.example.services.SafeIntInput;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -38,9 +39,7 @@ public class Order {
             return;
         }
 
-        System.out.print("Введите количество: ");
-        int quantity = scanner.nextInt();
-        scanner.nextLine();
+        int quantity = SafeIntInput.safeInput("Введите количество: ");
 
         // проверка количества товара на корректность
         if (quantity <= 0) {
@@ -136,8 +135,7 @@ public class Order {
             System.err.println("Ошибка при получении списка заказов: " + e.getMessage());
         }
 
-        System.out.print("Введите id товара, который нужно вернуть: ");
-        int chosenId = scanner.nextInt();
+        int chosenId = SafeIntInput.safeInput("Введите id товара, который нужно вернуть: ");
 
         if (!ordersId.contains(chosenId)) {
             System.out.println("Некорректно введен id товара");

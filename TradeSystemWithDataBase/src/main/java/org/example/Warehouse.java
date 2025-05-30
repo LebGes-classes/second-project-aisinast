@@ -2,6 +2,7 @@ package org.example;
 
 import org.example.database.DataBase;
 import org.example.services.Check;
+import org.example.services.SafeIntInput;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,9 +97,8 @@ public class Warehouse {
                 System.out.println();
             }
 
-            System.out.print("Введите номер работника, которого вы хотите назначить ответственным лицом: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice = SafeIntInput.safeInput("Введите номер работника, которого вы хотите назначить " +
+                    "ответственным лицом: ");
 
             String newSqlQuery = "UPDATE warehouses SET manager_id = ? WHERE name = ?";
             PreparedStatement preparedStatement1 = connection.prepareStatement(newSqlQuery);
@@ -160,9 +160,7 @@ public class Warehouse {
             System.out.println(i + 1 + ". " + warehousesArray[i]);
         }
 
-        System.out.print("Ваш выбор: ");
-        int warehouseNumber = scanner.nextInt() - 1;
-        scanner.nextLine();
+        int warehouseNumber = SafeIntInput.safeInput("Ваш выбор: ") - 1;
 
         return warehousesArray[warehouseNumber];
     }
@@ -238,9 +236,7 @@ public class Warehouse {
             return;
         }
 
-        System.out.print("Введите id товара: ");
-        int productId = scanner.nextInt();
-        scanner.nextLine();
+        int productId = SafeIntInput.safeInput("Введите id товара: ");
 
         String productName = (String) DataBase.getCellValue("products",
                 "name", "id", productId);
@@ -252,9 +248,7 @@ public class Warehouse {
         int manufactureId = (int) DataBase.getCellValue("products", "manufacture_id",
                 "id", productId);
 
-        System.out.print("Введите количество: ");
-        int quantity = scanner.nextInt();
-        scanner.nextLine();
+        int quantity = SafeIntInput.safeInput("Введите количество: ");
 
         if (quantity <= 0) {
             System.out.println("Количество не может быть меньше или равно нулю");

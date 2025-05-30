@@ -3,6 +3,7 @@ package org.example;
 import org.example.accounting.SalesAccounting;
 import org.example.database.DataBase;
 import org.example.services.Check;
+import org.example.services.SafeIntInput;
 import org.example.terminal.OutputController;
 
 import java.sql.*;
@@ -37,25 +38,19 @@ public class Product {
             return;
         }
 
-        System.out.print("Введите цену продажи: ");
-        int sellPrice = scanner.nextInt();
-        scanner.nextLine();
+        int sellPrice = SafeIntInput.safeInput("Введите цену продажи: ");
 
         if (sellPrice < 0) {
             System.out.println("Цена не может быть меньше 0");
         }
 
-        System.out.print("Введите цену покупки: ");
-        int buyPrice = scanner.nextInt();
-        scanner.nextLine();
+        int buyPrice = SafeIntInput.safeInput("Введите цену покупки: ");
 
         if (buyPrice < 0) {
             System.out.println("Цена не может быть меньше 0");
         }
 
-        System.out.print("Введите количество: ");
-        int quantity = scanner.nextInt();
-        scanner.nextLine();
+        int quantity = SafeIntInput.safeInput("Введите количество: ");
 
         if (quantity < 0) {
             System.out.println("Количество не может быть меньше 0");
@@ -67,9 +62,8 @@ public class Product {
 
         System.out.println("Выберите производство из списка ниже: ");
         DataBase.printAll("manufactures", 3);
-        System.out.print("Ваш выбор (введите id) : ");
-        int manufactureId = scanner.nextInt();
-        scanner.nextLine();
+
+        int manufactureId = SafeIntInput.safeInput("Ваш выбор (введите id) : ");
 
         List<Integer> cells = getCellsList(warehouseId);
 

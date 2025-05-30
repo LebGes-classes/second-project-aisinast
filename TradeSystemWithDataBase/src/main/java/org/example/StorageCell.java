@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.database.DataBase;
+import org.example.services.SafeIntInput;
 
 import java.sql.*;
 import java.util.Scanner;
@@ -21,9 +22,7 @@ public class StorageCell {
         String warehouse = Warehouse.printWarehousesAndChoose();
         warehouseId = DataBase.getId("warehouses", "name", warehouse);
 
-        System.out.print("Введите вместимость: ");
-        int capacity = scanner.nextInt();
-        scanner.nextLine();
+        int capacity = SafeIntInput.safeInput("Введите вместимость: ");
 
         if (capacity <= 0) {
             System.out.println("Ячейка не может иметь отрицательную или нулевую вместимость");

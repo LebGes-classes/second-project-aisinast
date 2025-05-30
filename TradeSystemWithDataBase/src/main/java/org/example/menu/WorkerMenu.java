@@ -1,15 +1,15 @@
 package org.example.menu;
 
 import org.example.Worker;
+import org.example.services.SafeIntInput;
 import org.example.terminal.OutputController;
 import org.example.terminal.Printer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
 
 public class WorkerMenu {
-    static Scanner scanner = new Scanner(System.in);
+
     static Printer printer = new Printer();
 
     public static void showWorkerMenu()  {
@@ -21,9 +21,7 @@ public class WorkerMenu {
             throw new RuntimeException(e);
         }
 
-        System.out.print("\nВаш выбор: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        int choice = SafeIntInput.safeInput("\nВаш выбор: ");
 
         switch (choice) {
             case 1:

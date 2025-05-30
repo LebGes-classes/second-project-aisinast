@@ -3,6 +3,7 @@ package org.example;
 import org.example.database.DataBase;
 import org.example.menu.AppMenu;
 import org.example.services.Check;
+import org.example.services.SafeIntInput;
 import org.example.terminal.OutputController;
 
 import java.sql.*;
@@ -32,9 +33,7 @@ public class SalePoint {
         int warehouseId = (int) DataBase.getCellValueByTwoConditions("sale_points", "id",
                 "city", city, "address", address);
 
-        System.out.print("Введите вместительность пункта продаж: ");
-        int capacity = scanner.nextInt();
-        scanner.nextLine();
+        int capacity = SafeIntInput.safeInput("Введите вместительность пункта продаж: ");
 
         StorageCell.addIntoTable(capacity, warehouseId, "ячейка пункта продаж");
     }
@@ -44,9 +43,7 @@ public class SalePoint {
 
         DataBase.printAll("sale_points", 4);
 
-        System.out.print("Ваш выбор: ");
-        int salePointId = scanner.nextInt();
-        scanner.nextLine();
+        int salePointId = SafeIntInput.safeInput("Ваш выбор: ");
 
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {
             String sqlQuery = String.format("UPDATE workers SET status = 'уволен' WHERE +" +
@@ -134,9 +131,8 @@ public class SalePoint {
                 return;
             }
 
-            System.out.print("Введите номер работника, которого вы хотите назначить ответственным лицом: ");
-            int managerId = scanner.nextInt();
-            scanner.nextLine();
+            int managerId = SafeIntInput.safeInput("Введите номер работника, которого вы хотите назначить " +
+                    "ответственным лицом: ");
 
             String newSqlQuery = "UPDATE sale_points SET manager_id = ? WHERE id = ?";
 
