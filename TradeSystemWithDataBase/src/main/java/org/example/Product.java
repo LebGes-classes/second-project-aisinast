@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.accounting.ManufactureAccounting;
+import org.example.accounting.SalesAccounting;
 import org.example.database.DataBase;
 import org.example.services.Check;
 import org.example.terminal.OutputController;
@@ -20,7 +20,7 @@ public class Product {
     static Scanner scanner = new Scanner(System.in);
 
     public static void addNewProduct(String warehouse) {
-        if (DataBase.sqliteCountRowsWithCondition("warehouses", "name", warehouse) == 0) {
+        if (DataBase.countRowsWithCondition("warehouses", "name", warehouse) == 0) {
             System.out.println("Ячейки на этом складе отсутствуют");
             return;
         }
@@ -87,7 +87,7 @@ public class Product {
             putInSeveralCells(name, buyPrice, sellPrice, quantity, manufactureId, warehouseId);
         }
 
-        ManufactureAccounting.registerSale(buyPrice * quantity, manufactureId, name);
+        SalesAccounting.registerSale("sale_point", buyPrice * quantity, manufactureId, name);
     }
 
     public static void printProductsInfo(String warehouse) {
@@ -250,7 +250,7 @@ public class Product {
         return freeSpace;
     }
 
-    static List<Integer> getCellsList(int warehouseId) {
+    public static List<Integer> getCellsList(int warehouseId) {
         List<Integer> cells = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(DataBase.getDatabaseUrl())) {

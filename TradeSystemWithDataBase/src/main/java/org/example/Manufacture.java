@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.accounting.ManufactureAccounting;
+import org.example.accounting.SalesAccounting;
 import org.example.database.DataBase;
 import org.example.services.Check;
 
@@ -37,7 +37,7 @@ public class Manufacture {
             return;
         }
 
-        if (DataBase.sqliteCountRowsWithCondition(getTableName(), "name", name) != 0) {
+        if (DataBase.countRowsWithCondition(getTableName(), "name", name) != 0) {
             System.out.println("Производитель с таким названием уже существует!");
             return;
         }
@@ -62,7 +62,7 @@ public class Manufacture {
         int manufactureId = scanner.nextInt();
         scanner.nextLine();
 
-        int profit = ManufactureAccounting.getProfitInfo(manufactureId);
+        int profit = SalesAccounting.getProfitInfo("manufacture", manufactureId);
 
         System.out.println("Прибыль за все время: " + profit);
     }

@@ -1,7 +1,9 @@
 package org.example;
 
 import org.example.database.DataBase;
+import org.example.menu.AppMenu;
 import org.example.services.Check;
+import org.example.terminal.OutputController;
 
 import java.sql.*;
 import java.util.Scanner;
@@ -218,6 +220,8 @@ public class SalePoint {
 
         if (count == 0) {
             System.out.println("Товары в выбранном пункте продаж отсутствуют");
+            OutputController.waitForEnter();
+            AppMenu.showAppMenu();
         }
     }
 

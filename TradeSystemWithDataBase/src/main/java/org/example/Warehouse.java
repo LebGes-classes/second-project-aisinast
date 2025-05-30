@@ -48,7 +48,7 @@ public class Warehouse {
     public static void closeWarehouse() {
         String warehouse = printWarehousesAndChoose();
 
-        if (DataBase.sqliteCountRowsWithCondition("warehouses", "name", warehouse) == 0) {
+        if (DataBase.countRowsWithCondition("warehouses", "name", warehouse) == 0) {
             System.out.println("Такого склада не существует");
             return;
         }
@@ -168,7 +168,7 @@ public class Warehouse {
     }
 
     private static String createWarehouseName(String city) {
-        return city + "-" + (DataBase.sqliteCountRowsWithCondition(tableName, "city", city) + 1);
+        return city + "-" + (DataBase.countRowsWithCondition(tableName, "city", city) + 1);
     }
 
     private static class Node {

@@ -35,7 +35,7 @@ public class SalePointMenu {
             case 2:
                 OutputController.clearConsole();
 
-                SalePoint.closeSellPoint();
+                SalePoint.closeSalePoint();
 
                 OutputController.waitForEnter();
                 showSalePointMenu();

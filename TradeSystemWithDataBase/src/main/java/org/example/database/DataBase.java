@@ -25,7 +25,7 @@ public class DataBase {
     }
 
     // метод для подсчета количества строк, удовлетворяющих условию
-    public static int sqliteCountRowsWithCondition(String tableName, String fieldName, String fieldValue) {
+    public static int countRowsWithCondition(String tableName, String fieldName, Object fieldValue) {
         int count = 0;
 
         try (Connection conn = DriverManager.getConnection(DATABASE_URL)) {
@@ -33,7 +33,11 @@ public class DataBase {
 
             PreparedStatement pstmt = conn.prepareStatement(sqlQuery);
 
-            pstmt.setString(1, fieldValue);
+            if (fieldValue instanceof String) {
+                pstmt.setString(1, (String) fieldValue);
+            } else if (fieldValue instanceof Integer) {
+                pstmt.setInt(1, (int) fieldValue);
+            }
 
             ResultSet rs = pstmt.executeQuery();
 
